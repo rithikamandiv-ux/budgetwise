@@ -1,0 +1,16 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+
+# Env
+.env
+
+# Mac
+.DS_Store
+
+# VSCode
+.vscode/
