@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-base: #1a1b23;
+  --bg-surface: #1e1f2b;
+  --bg-elevated: #252636;
+  --bg-sidebar: #16171e;
+  --border: #2a2b38;
+  --border-hover: #3a3b4a;
+
+  --text-primary: #f2e1c2;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-heading: #f9fafb;
+
+  --gold: #d6b68a;
+  --gold-light: #f2e1c2;
+  --gold-dark: #bfa27a;
+  --gold-gradient: linear-gradient(330deg, #d6b68a, #bfa27a);
+  --gold-gradient-hover: linear-gradient(330deg, #d6b68a, #bfa27a, #f2e1c2);
+
+  --green: #22c55e;
+  --green-soft: #4ade80;
+  --red: #ef4444;
+  --red-soft: #f87171;
+  --blue: #3b82f6;
+  --blue-soft: #60a5fa;
+  --purple: #a855f7;
+  --purple-soft: #a78bfa;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 50px;
+
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  background: var(--bg-base);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: left;
+  border: none;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+h1, h2, h3 {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+h1 {
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  font-size: 20px;
+  letter-spacing: -0.3px;
+}
+
+h3 {
+  font-size: 16px;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
