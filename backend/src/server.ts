@@ -4,6 +4,7 @@ import expenseRoutes from "./routes/expenseRoutes";
 import incomeRoutes from "./routes/incomeRoutes";
 import budgetRoutes from "./routes/budgetRoutes";
 import summaryRoutes from "./routes/summaryRoutes";
+import forecastRoutes from "./routes/forecastRoutes";
 
 const app = express();
 const PORT = 3001;
@@ -19,6 +20,7 @@ app.use("/expenses", expenseRoutes);
 app.use("/income", incomeRoutes);
 app.use("/budgets", budgetRoutes);
 app.use("/summary", summaryRoutes);
+app.use("/forecast", forecastRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

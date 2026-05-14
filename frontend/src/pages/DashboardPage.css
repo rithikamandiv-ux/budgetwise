@@ -1,5 +1,3 @@
-
-
 /* ===== Dashboard Layout ===== */
 .dashboard-container {
   padding: 36px 40px;
@@ -138,7 +136,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 36px;
 }
 
 .chart-card {
@@ -163,7 +161,7 @@
 
 /* ===== Smart Insights ===== */
 .insights-section {
-  margin-bottom: 28px;
+  margin-bottom: 36px;
 }
 
 .insights-title {
@@ -364,4 +362,139 @@
 
 .recharts-legend-item-text {
   color: var(--text-secondary) !important;
+}
+
+/* ===== Header Controls ===== */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ===== AI Budget Forecast ===== */
+.forecast-section {
+  margin-bottom: 40px;
+}
+
+.forecast-title {
+  color: var(--text-heading);
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.forecast-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forecast-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.forecast-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.forecast-card-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.risk-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.risk-low {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--green-soft);
+}
+
+.risk-medium {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fcd34d;
+}
+
+.risk-high {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--red-soft);
+}
+
+.forecast-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forecast-metric-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.forecast-metric-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.forecast-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+.forecast-status {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.forecast-warning {
+  color: var(--red-soft);
+}
+
+.forecast-safe {
+  color: var(--green-soft);
+}
+
+.forecast-message {
+  font-size: 13px;
+  color: var(--gold);
+  line-height: 1.6;
+  opacity: 0.85;
+  margin: 0;
+}
+
+.forecast-error,
+.forecast-empty {
+  color: var(--text-muted);
+  font-size: 14px;
 }

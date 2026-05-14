@@ -8,9 +8,24 @@ npm-debug.log*
 
 # Env
 .env
+.env.local
 
 # Mac
 .DS_Store
 
 # VSCode
 .vscode/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Forecast service
+forecast-service/venv/
+forecast-service/.venv/
+forecast-service/__pycache__/
+forecast-service/app/**/__pycache__/

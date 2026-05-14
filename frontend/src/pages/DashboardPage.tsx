@@ -30,10 +30,50 @@ type Summary = {
     categorySummary: CategorySummaryItem[];
 };
 
+type OverspendingPrediction = {
+    category: string;
+    budget_limit: number;
+    spent_so_far: number;
+    predicted_monthly_spending: number;
+    will_overspend: boolean;
+    predicted_overspend_amount: number;
+    risk_level: string;
+    message: string;
+};
+
+type BudgetSuggestion = {
+    category: string;
+    current_budget: number;
+    average_past_spending: number;
+    suggested_budget: number;
+    message: string;
+};
+
+type ForecastItem = {
+    category: string;
+    currentBudget: number;
+    spentSoFar: number;
+    overspendingPrediction: OverspendingPrediction;
+    budgetSuggestion: BudgetSuggestion;
+};
+
+type ForecastResponse = {
+    month: number;
+    year: number;
+    daysPassed: number;
+    totalDaysInMonth: number;
+    forecasts: ForecastItem[];
+};
+
 function DashboardPage() {
     const [summary, setSummary] = useState<Summary | null>(null);
+    const [forecast, setForecast] = useState<ForecastResponse | null>(null);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const [forecastError, setForecastError] = useState("");
+
     const [selectedMonth, setSelectedMonth] = useState("4");
     const [selectedYear, setSelectedYear] = useState("2026");
 
@@ -41,13 +81,12 @@ function DashboardPage() {
         setLoading(true);
         setError("");
 
-        fetch(
-            `http://localhost:3001/summary?month=${month}&year=${year}`
-        )
+        fetch(`http://localhost:3001/summary?month=${month}&year=${year}`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Failed to fetch summary");
                 }
+
                 return res.json();
             })
             .then((data) => {
@@ -60,9 +99,34 @@ function DashboardPage() {
             });
     };
 
+    const fetchForecast = (month: string, year: string) => {
+        setForecastError("");
+
+        fetch(`http://localhost:3001/forecast?month=${month}&year=${year}`)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("Failed to fetch forecast");
+                }
+
+                return res.json();
+            })
+            .then((data) => {
+                setForecast(data);
+            })
+            .catch(() => {
+                setForecastError("Could not load forecast data");
+            });
+    };
+
     useEffect(() => {
         fetchSummary(selectedMonth, selectedYear);
+        fetchForecast(selectedMonth, selectedYear);
     }, [selectedMonth, selectedYear]);
+
+    const handleRefresh = () => {
+        fetchSummary(selectedMonth, selectedYear);
+        fetchForecast(selectedMonth, selectedYear);
+    };
 
     const formatCurrency = (amount: number) => {
         return "Rs. " + amount.toLocaleString("en-IN");
@@ -109,10 +173,12 @@ function DashboardPage() {
         }
     ];
 
-    const expenseCategoryChartData = summary.categorySummary.map((item) => ({
-        name: item.category,
-        value: item.spent
-    }));
+    const expenseCategoryChartData = summary.categorySummary
+        .filter((item) => item.spent > 0)
+        .map((item) => ({
+            name: item.category,
+            value: item.spent
+        }));
 
     const topSpendingCategory = [...summary.categorySummary].sort(
         (a, b) => b.spent - a.spent
@@ -135,18 +201,22 @@ function DashboardPage() {
                 <div className="header-top">
                     <div>
                         <h1 className="dashboard-title">Dashboard</h1>
+
                         <p className="selected-period">
                             Showing data for{" "}
                             <strong>
-                                {new Date(Number(selectedYear), Number(selectedMonth) - 1).toLocaleString(
-                                    "en-US",
-                                    { month: "long", year: "numeric" }
-                                )}
+                                {new Date(
+                                    Number(selectedYear),
+                                    Number(selectedMonth) - 1
+                                ).toLocaleString("en-US", {
+                                    month: "long",
+                                    year: "numeric"
+                                })}
                             </strong>
                         </p>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div className="header-controls">
                         <div className="filters-bar">
                             <select
                                 className="filter-select"
@@ -176,12 +246,11 @@ function DashboardPage() {
                             />
                         </div>
 
-                        <button onClick={() => fetchSummary(selectedMonth, selectedYear)} className="app-btn">
+                        <button onClick={handleRefresh} className="app-btn">
                             ↻ Refresh
                         </button>
                     </div>
                 </div>
-
             </div>
 
             <div className="dashboard-grid">
@@ -228,10 +297,12 @@ function DashboardPage() {
             <div className="charts-section">
                 <div className="chart-card">
                     <h2>Income vs Expenses vs Budget</h2>
+
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={overviewChartData}>
                             <XAxis dataKey="name" stroke="#6b7280" />
                             <YAxis stroke="#6b7280" />
+
                             <Tooltip
                                 cursor={{ fill: "transparent" }}
                                 contentStyle={{
@@ -242,7 +313,9 @@ function DashboardPage() {
                                 }}
                                 labelStyle={{ color: "#9ca3af" }}
                             />
+
                             <Legend />
+
                             <Bar dataKey="Income" fill="#22c55e" radius={[6, 6, 0, 0]} />
                             <Bar dataKey="Expenses" fill="#ef4444" radius={[6, 6, 0, 0]} />
                             <Bar dataKey="Budget" fill="#3b82f6" radius={[6, 6, 0, 0]} />
@@ -252,40 +325,48 @@ function DashboardPage() {
 
                 <div className="chart-card">
                     <h2>Expenses by Category</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={expenseCategoryChartData}
-                                dataKey="value"
-                                nameKey="name"
-                                outerRadius={110}
-                                label={({ name, percent }) =>
-                                    `${name} ${(percent * 100).toFixed(0)}%`
-                                }
-                            >
-                                {expenseCategoryChartData.map((entry, index) => (
-                                    <Cell
-                                        key={entry.name}
-                                        fill={PIE_COLORS[index % PIE_COLORS.length]}
-                                    />
-                                ))}
-                            </Pie>
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: "#252636",
-                                    border: "1px solid #2a2b38",
-                                    borderRadius: "8px",
-                                    color: "#f9fafb"
-                                }}
-                            />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
+
+                    {expenseCategoryChartData.length === 0 ? (
+                        <p className="empty-chart-text">No expense data for this month.</p>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={expenseCategoryChartData}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    outerRadius={110}
+                                    label={({ name, percent }) =>
+                                        `${name} ${(percent * 100).toFixed(0)}%`
+                                    }
+                                >
+                                    {expenseCategoryChartData.map((entry, index) => (
+                                        <Cell
+                                            key={entry.name}
+                                            fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                        />
+                                    ))}
+                                </Pie>
+
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: "#252636",
+                                        border: "1px solid #2a2b38",
+                                        borderRadius: "8px",
+                                        color: "#f9fafb"
+                                    }}
+                                />
+
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    )}
                 </div>
             </div>
 
             <div className="insights-section">
                 <h2 className="insights-title">Smart Insights</h2>
+
                 <div className="insights-grid">
                     <div className="insight-card">
                         <p className="insight-label">Top Spending Category</p>
@@ -296,7 +377,7 @@ function DashboardPage() {
                         </h3>
                         <p>
                             {topSpendingCategory
-                                ? `Rs. ${topSpendingCategory.spent} spent`
+                                ? `${formatCurrency(topSpendingCategory.spent)} spent`
                                 : "Add expenses to see insights"}
                         </p>
                     </div>
@@ -327,6 +408,92 @@ function DashboardPage() {
                 </div>
             </div>
 
+            <div className="forecast-section">
+                <h2 className="forecast-title">AI Budget Forecast</h2>
+
+                {forecastError ? (
+                    <p className="forecast-error">{forecastError}</p>
+                ) : !forecast || forecast.forecasts.length === 0 ? (
+                    <p className="forecast-empty">
+                        No forecast data available for this month.
+                    </p>
+                ) : (
+                    <div className="forecast-grid">
+                        {forecast.forecasts.map((item) => (
+                            <div className="forecast-card" key={item.category}>
+                                <div className="forecast-card-header">
+                                    <h3>{item.category}</h3>
+
+                                    <span
+                                        className={
+                                            "risk-badge " +
+                                            (item.overspendingPrediction.risk_level === "High"
+                                                ? "risk-high"
+                                                : item.overspendingPrediction.risk_level === "Medium"
+                                                    ? "risk-medium"
+                                                    : "risk-low")
+                                        }
+                                    >
+                                        {item.overspendingPrediction.risk_level} Risk
+                                    </span>
+                                </div>
+
+                                <div className="forecast-metrics">
+                                    <div className="forecast-metric">
+                                        <span className="forecast-metric-label">Current Budget</span>
+                                        <span className="forecast-metric-value">
+                                            {formatCurrency(item.currentBudget)}
+                                        </span>
+                                    </div>
+
+                                    <div className="forecast-metric">
+                                        <span className="forecast-metric-label">Spent So Far</span>
+                                        <span className="forecast-metric-value">
+                                            {formatCurrency(item.spentSoFar)}
+                                        </span>
+                                    </div>
+
+                                    <div className="forecast-metric">
+                                        <span className="forecast-metric-label">Predicted Spending</span>
+                                        <span className="forecast-metric-value">
+                                            {formatCurrency(
+                                                item.overspendingPrediction.predicted_monthly_spending
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    <div className="forecast-metric">
+                                        <span className="forecast-metric-label">Suggested Budget</span>
+                                        <span className="forecast-metric-value">
+                                            {formatCurrency(item.budgetSuggestion.suggested_budget)}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="forecast-divider"></div>
+
+                                {item.overspendingPrediction.will_overspend ? (
+                                    <p className="forecast-status forecast-warning">
+                                        Estimated Overspend:{" "}
+                                        {formatCurrency(
+                                            item.overspendingPrediction.predicted_overspend_amount
+                                        )}
+                                    </p>
+                                ) : (
+                                    <p className="forecast-status forecast-safe">
+                                        Budget is currently on track.
+                                    </p>
+                                )}
+
+                                <p className="forecast-message">
+                                    {item.overspendingPrediction.message}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             <div className="category-summary-section">
                 <h2 className="category-summary-title">Category Budget Tracking</h2>
 
@@ -338,6 +505,7 @@ function DashboardPage() {
                             <div className="category-summary-card" key={item.category}>
                                 <div className="category-summary-header">
                                     <h3>{item.category}</h3>
+
                                     <span
                                         className={
                                             item.isOverBudget
@@ -349,9 +517,9 @@ function DashboardPage() {
                                     </span>
                                 </div>
 
-                                <p>Budget: Rs. {item.budget}</p>
-                                <p>Spent: Rs. {item.spent}</p>
-                                <p>Remaining: Rs. {item.remaining}</p>
+                                <p>Budget: {formatCurrency(item.budget)}</p>
+                                <p>Spent: {formatCurrency(item.spent)}</p>
+                                <p>Remaining: {formatCurrency(item.remaining)}</p>
 
                                 <div className="progress-bar-container">
                                     <div
